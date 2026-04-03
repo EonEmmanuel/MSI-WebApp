@@ -26,8 +26,10 @@ const app = express()
       res.send('server running....!!!');
     });
 
+app.use('/api/msi', teamRoute, userRoute, standingRoute, GalleryRoute, LiveRoute, matchdayRoute, ProgramRoute, ArticleRoute, VideoRoute, ScheduleRoute, LeagueRoute)
+
+export default app;
+
 app.listen(3002, () => {
     console.log("Server is on run......!!!")
 })
-
-app.use('/api/msi', teamRoute, userRoute, standingRoute, GalleryRoute, LiveRoute, matchdayRoute, ProgramRoute, ArticleRoute, VideoRoute, ScheduleRoute, LeagueRoute)

@@ -17,6 +17,12 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Environment variables
+client/.env
+server/.env
+client/.env.local
+server/.env.local
+client/.env.*.local
+server/.env.*.local
 .env
 .env.local
 .env.*.local

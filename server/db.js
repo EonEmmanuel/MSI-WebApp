@@ -6,7 +6,7 @@ const { Pool } = pkg
 dotenv.config()
 
 const db = new Pool({
-  connectionString: 'postgresql://neondb_owner:npg_6AvDWHfrB4YR@ep-sweet-pond-anauchh0-pooler.c-6.us-east-1.aws.neon.tech/MSI?sslmode=require&channel_binding=require',
+  connectionString: process.env.DATABASE_URL,
 });
  
   async function testConnection() {
