@@ -23,7 +23,7 @@ function User() {
     
           try {
             // Replace with your actual API endpoint
-            const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getusers');
+            const response = await fetch('http://localhost:3002/api/msi/getusers');
             
             // Check if the response is successful
             if (!response.ok) {

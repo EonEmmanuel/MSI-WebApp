@@ -165,18 +165,29 @@ export default function ProgramSection() {
   const [programsData, setProgramsData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3002/api/msi/getallprogram?limit=6');
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const result = await response.json();
-        setProgramsData(result.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:3002/api/msi/getallprogram?limit=6');
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const result = await response.json();
+
+      // Sort by time smallest → biggest
+      const sorted = (result.data || []).sort((a, b) => {
+        const toMins = (t = '') => {
+          const [h, m] = (t || '').split(':').map(Number);
+          return (h || 0) * 60 + (m || 0);
+        };
+        return toMins(a.time) - toMins(b.time);
+      });
+
+      setProgramsData(sorted);
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  fetchData();
+}, []);
 
   return (
     <section className="bg-zinc-950 min-h-screen">

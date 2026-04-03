@@ -457,7 +457,7 @@ const HeroSection = () => {
       <style>{STYLES}</style>
 
       <section
-        className="relative w-full h-fit overflow-hidden flex flex-col justify-between min-h-screen"
+        className="relative w-full h-fit overflow-hidden flex flex-col justify-between min-h-screen max-w-full"
         style={{ background: '#080808' }}
       >
 
@@ -514,7 +514,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage:'url("https://res.cloudinary.com/drzoiigek/image/upload/v1774443807/qnttvgu1a2btbfrnes0z.jpg")',backgroundSize:'cover',backgroundPosition:'center',maskImage:'linear-gradient(105deg, transparent 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.25) 100%)',WebkitMaskImage:'linear-gradient(105deg, transparent 0%, rgba(0,0,0,0.08) 30%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.25) 100%)' }} />
         <div className="absolute inset-0" style={{ background:'linear-gradient(105deg, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.85) 40%, rgba(8,8,8,0.4) 65%, rgba(8,8,8,0.05) 100%)' }} />
         <div className="absolute inset-0" style={{ background:'linear-gradient(to top, rgba(8,8,8,1) 0%, rgba(8,8,8,0.6) 25%, transparent 55%)' }} />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[400px] pointer-events-none" style={{ background:'radial-gradient(ellipse at 0% 100%, rgba(12,155,332,0.15) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 left-0 w-full max-w-[600px] h-[400px] pointer-events-none" style={{ background:'radial-gradient(ellipse at 0% 100%, rgba(12,155,332,0.15) 0%, transparent 70%)' }} />
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E")`,opacity:0.6 }} />
 
         {/* ══════════════════════════════════════

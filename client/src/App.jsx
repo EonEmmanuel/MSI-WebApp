@@ -15,18 +15,15 @@ import LeagueDetail from './Pages/LeagueDetail';
 import FooterComponent from './Components/FooterComponent'
 import Header from './Components/Header'
 import Dashboard from './Admin/Dashboard'
-import StatOne from './Admin/Board/Stats'
-import Standing from './Admin/Board/Standing'
-import MarketOne from './Admin/Board/Market'
 import Article from './Admin/Board/Blog'
 import Highlight from './Admin/Board/Highlight'
 import Schedule from './Admin/Board/Schedule'
-import FixMatchday from './Admin/Board/FixMatchday'
-import ResMatchday from './Admin/Board/ResMatchday'
 import AdminProgram from './Admin/Board/Program'
 import AdminLeague from './Admin/League/index';
 import LeagueDetailPage from './Admin/League/LeagueDetailPage';
 import LiveTV from './Pages/LiveTV';
+import AdminGallery from './Admin/Gallery';
+import AdminLive from './Admin/Board/Live';
 
 function App() {
   return (
@@ -51,14 +48,11 @@ function App() {
                  <Route path='/adminleague' element={<AdminLeague />} />
                  <Route path='/adminleaguedetail/:leagueId' element={<LeagueDetailPage />} />
                   <Route path='/adminprogram' element={<AdminProgram />} />
-                  <Route path='/gslstanding' element={<Standing />} />
-                  <Route path='/gslstat' element={<StatOne />} />
-                  <Route path='/gslmarket' element={<MarketOne />} />
                   <Route path='/adminarticle' element={<Article />} />
                   <Route path='/adminvideo' element={<Highlight />} />
                   <Route path='/adminschedule' element={<Schedule />} />
-                  <Route path='/gslfixture' element={<FixMatchday />} />
-                  <Route path='/gslresult' element={<ResMatchday />} />
+                  <Route path='/admingallery' element={<AdminGallery />} />
+                  <Route path='/adminlive' element={<AdminLive />} />
 
               </Routes>
             <FooterComponent />

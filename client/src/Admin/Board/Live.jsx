@@ -67,7 +67,7 @@ const FontImport = () => (
   `}</style>
 )
 
-function HighlightOne() {
+function AdminLive() {
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,19 +81,15 @@ function HighlightOne() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [formData, setFormData] = useState({
-    title: '',
-    video_url: '',
-    date: '',
-    desc: '',
-    tag: '',
-    program: ''
+    link: '',
+    name: '',
+    tag: ''
   });
-  const [program, setProgram] = useState([]);
 
   useEffect(() => {
     const fetchHighlightData = async () => {
       try {
-        const response = await fetch(`http://localhost:3002/api/msi/getvideoid/${updateHighlightId}`);
+        const response = await fetch(`http://localhost:3002/api/msi/getlive/${updateHighlightId}`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
         setUpdateData(result);
@@ -112,29 +108,13 @@ function HighlightOne() {
     setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:3002/api/msi/getallprogram');
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        const result = await response.json();
-        setProgram(result.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(error.message);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage({ text: 'Loading.......', type: 'success' });
     try {
-      const response = await fetch('http://localhost:3002/api/msi/createvideo', {
+      const response = await fetch('http://localhost:3002/api/msi/createlive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -156,7 +136,7 @@ function HighlightOne() {
     setIsLoading(true);
     setMessage({ text: 'Loading.......', type: 'success' });
     try {
-      const response = await fetch(`http://localhost:3002/api/msi/updatevideo/${updateHighlightId}`, {
+      const response = await fetch(`http://localhost:3002/api/msi/updatelive/${updateHighlightId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
@@ -176,7 +156,7 @@ function HighlightOne() {
     const fetchData = async () => {
       setMessage({ text: '', type: '' })
       try {
-        const response = await fetch('http://localhost:3002/api/msi/getallvideo');
+        const response = await fetch('http://localhost:3002/api/msi/getalllive');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
         setData(result.data);
@@ -192,14 +172,14 @@ function HighlightOne() {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:3002/api/msi/deletevideo/${deleteHighlightId}`, { method: 'DELETE' });
+      const res = await fetch(`http://localhost:3002/api/msi/deletelive/${deleteHighlightId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) {
         setMessage(data.message)
       } else {
         setMessage({ text: 'Highlight Deleted successful!!', type: 'success' })
         setDeleteHighlight(false)
-        setData((prev) => prev.filter((highlight) => highlight.video_id !== deleteHighlightId))
+        setData((prev) => prev.filter((highlight) => highlight.live_id !== deleteHighlightId))
       }
     } catch (error) {
       setMessage(error)
@@ -217,23 +197,6 @@ function HighlightOne() {
     </div>
   ) : null;
 
-  /* ── Shared image upload field ── */
-  const UploadField = ({ label, accept = 'image/*', onChange, preview, isVideo }) => (
-    <div className="mb-3">
-      <p className="font-outfit text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
-      <div className="upload-zone">
-        <FileInput type='file' accept={accept} onChange={onChange} />
-      </div>
-      {preview && !isVideo && (
-        <img src={preview} alt="preview" className="w-20 h-20 object-cover rounded-xl border border-slate-200 mx-auto mt-1" />
-      )}
-      {preview && isVideo && (
-        <video controls className="w-full rounded-xl mt-2 border border-slate-200">
-          <source src={preview} />
-        </video>
-      )}
-    </div>
-  );
 
   return (
     <div className='font-outfit m-3 min-h-screen'>
@@ -243,59 +206,43 @@ function HighlightOne() {
       <div className='flex justify-between items-center mb-4 max-w-7xl mx-auto'>
         <div>
           <p className='font-anton text-indigo-500 text-xs tracking-[0.2em] uppercase'>Manage</p>
-          <h2 className='font-anton text-slate-800 text-2xl'>Highlights</h2>
+          <h2 className='font-anton text-slate-800 text-2xl'>Live Links</h2>
         </div>
-        <button
-          onClick={() => { setAddHighlight(true) }}
-          className='font-outfit text-sm font-semibold bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2 rounded-xl transition-all duration-200 hover:shadow-[0_4px_14px_rgba(99,102,241,0.35)]'
-        >
-          + Add Highlight
-        </button>
+
+          <button
+            onClick={() => { setAddHighlight(true) }}
+            className='font-outfit text-sm font-semibold bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2 rounded-xl transition-all duration-200 hover:shadow-[0_4px_14px_rgba(99,102,241,0.35)]'
+          >
+            + Add Link
+          </button>
       </div>
 
       {/* ── Table ── */}
       <div className='max-w-7xl mx-auto overflow-scroll scrollbar rounded-2xl border border-slate-200 shadow-sm'>
         <Table hoverable>
           <Table.Head className='bg-slate-50'>
-          <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Program</Table.HeadCell>
-            <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Title</Table.HeadCell>
-            <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Video</Table.HeadCell>
-            <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Desc</Table.HeadCell>
-            <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Date</Table.HeadCell>
+          <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Link</Table.HeadCell>
+            <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Name</Table.HeadCell>
             <Table.HeadCell className='font-outfit text-xs text-slate-500 uppercase tracking-wider'>Tag</Table.HeadCell>
           </Table.Head>
           <Table.Body>
             {data.map((highlight) => (
-              <Table.Row key={highlight.video_id} className='bg-white border-b border-slate-100'>
+              <Table.Row key={highlight.live_id} className='bg-white border-b border-slate-100'>
+                <Table.Cell>
+                  <span className='font-outfit text-sm text-slate-500 line-clamp-2'>{highlight.link}</span>
+                </Table.Cell>
                  <Table.Cell>
                   <span className='font-outfit text-sm text-slate-700 line-clamp-1'>{highlight.name}</span>
                 </Table.Cell>
                 <Table.Cell>
-                  <span className='font-outfit text-sm text-slate-700 line-clamp-1'>{highlight.title}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="w-40 h-32 overflow-hidden rounded">
-                    <div
-                      className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full"
-                      dangerouslySetInnerHTML={{ __html: highlight.video_url }}
-                    />
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className='font-outfit text-sm text-slate-500 line-clamp-2'>{highlight.desc}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className='font-outfit text-sm text-slate-500 line-clamp-2'>{highlight.date}</span>
-                </Table.Cell>
-                <Table.Cell>
-                  <span className='font-outfit text-sm text-slate-500 line-clamp-2'>{highlight.tag}</span>
+                  <span className='font-outfit text-sm text-slate-700 line-clamp-1'>{highlight.tag}</span>
                 </Table.Cell>
                 <Table.Cell>
                   <span className='flex gap-1'>
-                    <span className='action-icon edit' onClick={() => { setUpdateHighlight(true); setUpdateHighlightId(highlight.emission_id); }}>
+                    <span className='action-icon edit' onClick={() => { setUpdateHighlight(true); setUpdateHighlightId(highlight.live_id); }}>
                       <FaPenClip size={14} />
                     </span>
-                    <span className='action-icon del' onClick={() => { setDeleteHighlight(true); setDeleteHighlightId(highlight.emission_id); }}>
+                    <span className='action-icon del' onClick={() => { setDeleteHighlight(true); setDeleteHighlightId(highlight.live_id); }}>
                       <FaRecycle size={14} />
                     </span>
                   </span>
@@ -311,8 +258,8 @@ function HighlightOne() {
         <Modal.Header className='border-b border-slate-100 px-6 pt-5 pb-4'>
           <div>
             <p className='font-anton text-indigo-500 text-xs tracking-[0.2em] uppercase'>New Entry</p>
-            <h2 className='font-anton text-slate-800 text-2xl'>Add Highlight</h2>
-            <p className='font-outfit text-xs text-slate-400 mt-0.5'>Upload a highlight video to publish on the site</p>
+            <h2 className='font-anton text-slate-800 text-2xl'>Add Live</h2>
+            <p className='font-outfit text-xs text-slate-400 mt-0.5'>Upload a Live video to publish on the site</p>
           </div>
         </Modal.Header>
         <Modal.Body className='px-6 py-5'>
@@ -320,25 +267,14 @@ function HighlightOne() {
           <form className='space-y-1' onSubmit={handleRegister}>
 
             <input
-              type='text' name='title' value={formData.title}
-              onChange={handleChange} required placeholder='Title'
-              className='field-input'
-            />
-
-            <input
-              type='text' name='video_url' value={formData.video_url}
+              type='text' name='link' value={formData.link}
               onChange={handleChange} required placeholder='Video Url'
               className='field-input'
             />
 
-             <textarea
-              type='text' name='desc' value={formData.desc}
-              onChange={handleChange} required placeholder='Desc'
-              rows={4} className='field-input'
-            />
 
             <input
-              type='date' name='date' value={formData.date}
+              type='text' name='name' value={formData.name}
               onChange={handleChange} required
               className='field-input'
             />
@@ -348,11 +284,6 @@ function HighlightOne() {
               onChange={handleChange} required placeholder='Tag (e.g MAG)'
               className='field-input'
             />
-
-            <select className="field-input" value={formData.program} onChange={handleChange} name='program' required>
-                  <option value=''>Program</option>
-                  {program.map(p => <option key={p.program_id} value={p.program_id}>{p.name}</option>)}
-                </select>
 
             <button type='submit' disabled={isLoading} className='submit-btn mt-2'>
               {isLoading ? 'Adding Highlight…' : 'Add Highlight'}
@@ -366,7 +297,7 @@ function HighlightOne() {
         <Modal.Header className='border-b border-slate-100 px-6 pt-5 pb-4'>
           <div>
             <p className='font-anton text-indigo-500 text-xs tracking-[0.2em] uppercase'>Edit Entry</p>
-            <h2 className='font-anton text-slate-800 text-2xl'>Update Highlight</h2>
+            <h2 className='font-anton text-slate-800 text-2xl'>Update Live Link</h2>
             <p className='font-outfit text-xs text-slate-400 mt-0.5'>Modify the details below and save your changes</p>
           </div>
         </Modal.Header>
@@ -376,41 +307,19 @@ function HighlightOne() {
 
             <input
               type='text' 
-              name='title'
-              value={updateData.title}
-              onChange={(e) => setUpdateData({ ...updateData, title: e.target.value })}
-              placeholder='Title'
+              name='link'
+              value={updateData.link}
+              onChange={(e) => setUpdateData({ ...updateData, link: e.target.value })}
+              placeholder='Video URL'
               className='field-input'
             />
-            <div className="w-64 h-40 mx-auto overflow-hidden rounded">
-              <div
-                className="w-full h-full [&>iframe]:w-full [&>iframe]:h-full"
-                dangerouslySetInnerHTML={{ __html: updateData.video_url }}
-              />
-            </div>
 
             <input
               type='text' 
-              name='video_url'
-              value={updateData.video_url}
-              onChange={(e) => setUpdateData({ ...updateData, video_url: e.target.value })}
-              placeholder='Title'
-              className='field-input'
-            />
-
-            <textarea
-              name='desc'
-              value={updateData.desc}
-              onChange={(e) => setUpdateData({ ...updateData, desc: e.target.value })}
-              placeholder='Description preview'
-              rows={3} className='field-input'
-            />
-
-            <input
-              type='date' 
-              name='date'
-              value={updateData.date}
-              onChange={(e) => setUpdateData({ ...updateData, date: e.target.value })}
+              name='name'
+              value={updateData.name}
+              onChange={(e) => setUpdateData({ ...updateData, name: e.target.value })}
+              placeholder='Name'
               className='field-input'
             />
 
@@ -419,19 +328,9 @@ function HighlightOne() {
               name='tag'
               value={updateData.tag}
               onChange={(e) => setUpdateData({ ...updateData, tag: e.target.value })}
-              placeholder='Title'
+              placeholder='Tag (e.g MAG)'
               className='field-input'
             />
-
-             <select 
-             name='program' 
-             className="field-input" 
-             value={updateData.program} 
-             onChange={(e) => setUpdateData({ ...updateData, program: e.target.value })}
-             > 
-                  <option value=''>{updateData.name}</option>
-                  {program.map(p => <option key={p.program_id} value={p.program_id}>{p.name}</option>)}
-                </select>
 
             <button type='submit' disabled={isLoading} className='submit-btn mt-2'>
               {isLoading ? 'Updating....' : 'Update Highlight'}
@@ -461,4 +360,4 @@ function HighlightOne() {
   )
 }
 
-export default HighlightOne;
+export default AdminLive;

@@ -523,7 +523,7 @@ function index() {
 
             <input type='text' name='unique' value={updateData.unique}
               onChange={(e) => setUpdateData({...updateData, unique: e.target.value})}
-              placeholder='League Name' className='field-input' />
+              placeholder='Unique' className='field-input' />
 
             <button type='submit' disabled={isLoading} className='submit-btn' style={{ background: '#059669' }}>
               {isLoading ? (

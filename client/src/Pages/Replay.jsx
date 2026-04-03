@@ -12,136 +12,72 @@ import {
   Calendar,
 } from "lucide-react";
 
-let REPLAY_DATA;
-REPLAY_DATA = [
-  {
-    id: 1,
-    title: "Match Highlights: Man City 2-1 Arsenal",
-    showName: "La Matinale des Sports",
-    category: "Sports",
-    showColor: "bg-yellow-600",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774432658/mgm7z6stvgqkkuodnisp.png",
-    videoUrl: "https://www.youtube.com/embed/oNmLssf5kfM",
-    date: "2026-03-25",
-    duration: "10:15",
-    views: "1.2M views",
-  },
-  {
-    id: 2,
-    title: "Le Club",
-    showName: "Le Club",
-    category: "Sports",
-    showColor: "bg-gray-500",
-    thumbnail: "https://res.cloudinary.com/drzoiigek/image/upload/v1774434166/lvsm7qx3el225pejbwaq.png",
-    videoUrl: "https://www.youtube.com/embed/qYv2r_vS4Xo",
-    date: "2026-03-24",
-    duration: "45:20",
-    views: "45K views",
-  },
-  {
-    id: 3,
-    title: "Pelouse",
-    showName: "Pelouse",
-    category: "Debate",
-    showColor: "bg-blue-500",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774432659/e13emr5jqhaauvzvlmor.png",
-    videoUrl: "https://www.youtube.com/embed/eZXVFKDux3s",
-    date: "2026-03-24",
-    duration: "15:00",
-    views: "120K views",
-  },
-  {
-    id: 4,
-    title: "Tout Sauf Le Foot",
-    showName: "Tout Sauf Le Foot",
-    category: "Sports",
-    showColor: "bg-green-600",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774434177/tzayfbcsnjok0evkt3jc.png",
-    videoUrl: "https://www.youtube.com/embed/mfGL4HepT_E",
-    date: "2026-03-23",
-    duration: "09:45",
-    views: "800K views",
-  },
-  {
-    id: 5,
-    title: "A L'International",
-    showName: "A L'International",
-    category: "Talk Shows",
-    showColor: "bg-slate-300",
-    thumbnail: "https://res.cloudinary.com/drzoiigek/image/upload/v1774432660/xczz6p0w7sblmszsaycs.png",
-    videoUrl: "https://www.youtube.com/embed/V_YxSJXR9D4",
-    date: "2026-03-22",
-    duration: "12:30",
-    views: "2.5M views",
-  },
-  {
-    id: 6,
-    title: "Femmes et Sport",
-    showName: "Femmes et Sports",
-    category: "Documentary",
-    showColor: "bg-pink-500",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774432657/ndpimpbhf50wfnqx6qpy.png",
-    videoUrl: "https://www.youtube.com/embed/UjZ5x_pU8-M",
-    date: "2026-03-21",
-    duration: "25:00",
-    views: "30K views",
-  },
-  {
-    id: 7,
-    title: "Fighter",
-    showName: "Fighter",
-    category: "Documentary",
-    showColor: "bg-gray-200",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774432657/avhzevinyw0wcb9xgedx.png",
-    videoUrl: "https://www.youtube.com/embed/UjZ5x_pU8-M",
-    date: "2026-03-21",
-    duration: "25:00",
-    views: "30K views",
-  },
-  {
-    id: 8,
-    title: "Sport Le Mag",
-    showName: "Sport Le Mag",
-    category: "Documentary",
-    showColor: "bg-yellow-600",
-    thumbnail:
-        "https://res.cloudinary.com/drzoiigek/image/upload/v1774436072/bjrs10w3kdcgbtoeqflq.png",
-    videoUrl: "https://www.youtube.com/embed/UjZ5x_pU8-M",
-    date: "2026-03-21",
-    duration: "25:00",
-    views: "30K views",
-  },
-];
-
-
 export default function Replay() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterShow, setFilterShow] = useState("All Shows");
   const [activeVideo, setActiveVideo] = useState(null);
   const [selectedShow, setSelectedShow] = useState(null);
+  const [replayData, setReplayData] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:3002/api/msi/getallvideo");
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const result = await response.json();
+
+        // Map API fields to the shape the UI expects
+        const mapped = result.data.map((item) => ({
+          id: item.emission_id,
+          title: item.title,
+          showName: item.name,           // tag → show name / folder
+          category: item.tag,           // tag → category label
+          showColor: item.themecolor,     // default colour (customise per tag if needed)
+          thumbnail: item.image,
+          videoUrl: `https://www.youtube.com/embed/${extractYoutubeId(item.video_url)}`,
+          date: item.date,
+          duration: item.duration,                 // not in API — leave blank or add if available
+          views: item.tag,                    // not in API — leave blank or add if available
+          description: item.desc,
+          slug: item.video_slug,
+        }));
+
+        setReplayData(mapped);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    // Also read ?show= from URL
     const params = new URLSearchParams(window.location.search);
     const show = params.get("show");
-    if (show) {
-      setSelectedShow(show);
-    }
+    if (show) setSelectedShow(show);
   }, []);
 
-  // Group data by showName
+  // Helper: pull the video ID out of any YouTube URL format
+  function extractYoutubeId(url = "") {
+    const match = url.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+    );
+    return match ? match[1] : url; // fallback: use raw value if already an ID
+  }
+
+  // Group videos by showName (tag)
   const shows = useMemo(() => {
     const showGroups = {};
-    REPLAY_DATA.forEach((item) => {
+    replayData.forEach((item) => {
       if (!showGroups[item.showName]) {
         showGroups[item.showName] = {
           name: item.showName,
           category: item.category,
-          color: item.showColor || "bg-gray-600",
+          color: item.showColor,
           episodes: [],
           latestThumbnail: item.thumbnail,
         };
@@ -149,15 +85,14 @@ export default function Replay() {
       showGroups[item.showName].episodes.push(item);
     });
     return Object.values(showGroups);
-  }, []);
+  }, [replayData]);
 
-  // Filter shows based on search and selected show name
   const filteredShows = useMemo(() => {
     return shows.filter((show) => {
       const matchesSearch =
         show.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         show.episodes.some((ep) =>
-          ep.title.toLowerCase().includes(searchTerm.toLowerCase()),
+          ep.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
       const matchesFilter =
         filterShow === "All Shows" || show.name === filterShow;
@@ -165,13 +100,12 @@ export default function Replay() {
     });
   }, [shows, searchTerm, filterShow]);
 
-  // If a show is selected, filter its episodes
   const filteredEpisodes = useMemo(() => {
     if (!selectedShow) return [];
     const show = shows.find((s) => s.name === selectedShow);
     if (!show) return [];
     return show.episodes.filter((ep) =>
-      ep.title.toLowerCase().includes(searchTerm.toLowerCase()),
+      ep.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [selectedShow, shows, searchTerm]);
 
@@ -180,6 +114,24 @@ export default function Replay() {
     setSearchTerm("");
   };
 
+  // ── Loading / Error states ──────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
+        <p className="text-gray-400 text-lg animate-pulse">Loading replays…</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-[#050505] text-white flex items-center justify-center">
+        <p className="text-red-500 text-lg">Error: {error}</p>
+      </main>
+    );
+  }
+
+  // ── Main UI (identical to original) ────────────────────────────────────────
   return (
     <main className="min-h-screen bg-[#050505] text-white py-12 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto mt-10">
@@ -214,9 +166,7 @@ export default function Replay() {
             <input
               type="text"
               placeholder={
-                selectedShow
-                  ? "Search in this show..."
-                  : "Search shows, matches..."
+                selectedShow ? "Search in this show..." : "Search shows, matches..."
               }
               className="w-full bg-[#111] border border-white/10 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all text-sm"
               value={searchTerm}
@@ -249,7 +199,7 @@ export default function Replay() {
           )}
         </div>
 
-        {/* Shows Grid (Folders) */}
+        {/* Shows Grid */}
         {!selectedShow && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredShows.map((show) => (
@@ -259,10 +209,10 @@ export default function Replay() {
                 className="group cursor-pointer"
               >
                 <div className="relative aspect-[4/3] mb-4">
-                  {/* Folder effect / Stack effect */}
-                  <div className={`absolute inset-0 ${show.color} rounded-2xl translate-x-2 -translate-y-2 opacity-20 group-hover:opacity-40 transition-all duration-300`} />
-                  <div className={`absolute inset-0 ${show.color} rounded-2xl translate-x-1 -translate-y-1 opacity-40 group-hover:opacity-60 transition-all duration-300`} />
-
+                  <div className="absolute inset-0 rounded-2xl translate-x-2 -translate-y-2 opacity-20 group-hover:opacity-40 transition-all duration-300"
+                      style={{ backgroundColor: show.color }} />
+                  <div className="absolute inset-0 rounded-2xl translate-x-1 -translate-y-1 opacity-40 group-hover:opacity-60 transition-all duration-300"
+                      style={{ backgroundColor: show.color }} />
                   <div className="relative h-full w-full bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl transition-transform duration-300 group-hover:-translate-y-1">
                     <img
                       src={show.latestThumbnail}
@@ -270,20 +220,15 @@ export default function Replay() {
                       className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <Folder size={16} className={show.color.replace('bg-', 'text-')} />
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${show.color.replace('bg-', 'text-')}`}>
+                        <Folder size={16} style={{ color: show.color }} />
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: show.color }}>
                           {show.category}
                         </span>
                       </div>
-                      <h3 className="text-xl font-bold line-clamp-1">
-                        {show.name}
-                      </h3>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {show.episodes.length} Videos
-                      </p>
+                      <h3 className="text-xl font-bold line-clamp-1">{show.name}</h3>
+                      <p className="text-xs text-gray-400 mt-1">{show.episodes.length} Videos</p>
                     </div>
                   </div>
                 </div>
@@ -292,7 +237,7 @@ export default function Replay() {
           </div>
         )}
 
-        {/* Episode Grid (Contents of a Show) */}
+        {/* Episode Grid */}
         {selectedShow && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEpisodes.map((replay) => (
@@ -300,7 +245,6 @@ export default function Replay() {
                 key={replay.id}
                 className="group relative bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-red-500/30 hover:-translate-y-1 shadow-xl"
               >
-                {/* Thumbnail Container */}
                 <div
                   className="relative aspect-video overflow-hidden cursor-pointer"
                   onClick={() => setActiveVideo(replay)}
@@ -315,12 +259,12 @@ export default function Replay() {
                       <Play fill="white" size={32} className="ml-1" />
                     </div>
                   </div>
-                  <div className="absolute bottom-3 right-3 bg-black/80 px-2 py-1 rounded text-xs font-bold">
-                    {replay.duration}
-                  </div>
+                  {replay.duration && (
+                    <div className="absolute bottom-3 right-3 bg-black/80 px-2 py-1 rounded text-xs font-bold">
+                      {replay.duration}
+                    </div>
+                  )}
                 </div>
-
-                {/* Content */}
                 <div className="p-5">
                   <h3
                     className="font-bold text-lg mb-2 line-clamp-2 hover:text-red-500 transition-colors cursor-pointer"
@@ -329,10 +273,12 @@ export default function Replay() {
                     {replay.title}
                   </h3>
                   <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Film size={14} /> {replay.views}
-                    </span>
-                    <span>{new Date(replay.date).toLocaleDateString()}</span>
+                    {replay.views && (
+                      <span className="flex items-center gap-1">
+                        <Film size={14} /> {replay.views}
+                      </span>
+                    )}
+                    <span>{replay.date ? new Date(replay.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}</span>
                   </div>
                 </div>
               </div>
@@ -375,19 +321,17 @@ export default function Replay() {
               className="w-full h-full border-none"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-            ></iframe>
+            />
           </div>
-
-          {/* Video Information */}
           <div className="w-full max-w-5xl mt-6 px-4 md:px-0">
-            <h2 className="text-2xl md:text-3xl font-bold mb-3">
-              {activeVideo.title}
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">{activeVideo.title}</h2>
             <div className="flex flex-wrap items-center gap-4 text-gray-400 text-sm md:text-base">
-              <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
-                <Clock size={16} className="text-red-500" />
-                {activeVideo.duration}
-              </span>
+              {activeVideo.duration && (
+                <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
+                  <Clock size={16} className="text-red-500" />
+                  {activeVideo.duration}
+                </span>
+              )}
               <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
                 <Calendar size={16} className="text-red-500" />
                 {new Date(activeVideo.date).toLocaleDateString(undefined, {
@@ -396,14 +340,15 @@ export default function Replay() {
                   day: "numeric",
                 })}
               </span>
-              <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
-                <Film size={16} className="text-red-500" />
-                {activeVideo.views}
-              </span>
+              {activeVideo.views && (
+                <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
+                  <Film size={16} className="text-red-500" />
+                  {activeVideo.views}
+                </span>
+              )}
             </div>
             <p className="mt-4 text-gray-400 leading-relaxed max-w-3xl mb-12 md:mb-20">
-              Now playing: {activeVideo.showName} - {activeVideo.title}. 
-              Catch all the highlights and full episodes on our Replay page.
+              {activeVideo.description || `Now playing: ${activeVideo.showName} – ${activeVideo.title}.`}
             </p>
           </div>
         </div>

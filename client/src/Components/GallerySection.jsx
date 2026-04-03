@@ -159,7 +159,7 @@ export default function ProgramsSection() {
   const programfilter = programsData.filter(prog => prog.unique === 'Yes');
 
   return (
-    <section className="bg-zinc-950 min-h-screen">
+    <section className="bg-zinc-950 min-h-screen overflow-x-hidden">
       <FontImport />
 
       <div className="max-w-screen-xl mx-auto px-6 md:px-10 py-16 md:py-20">

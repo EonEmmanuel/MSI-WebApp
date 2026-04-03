@@ -43,21 +43,19 @@ const FontImport = () => (
 
 function DisplayBoard() {
 
-  const [data,       setData]       = useState();
+  const [programData, setProgramData]       = useState();
   const [videoData,  setVideoData]  = useState();
-  const [tableData,  setTableData]  = useState();
-  const [teamData,   setTeamData]   = useState();
-  const [coachData,  setCoachData]  = useState();
-  const [playerData, setPlayerData] = useState();
-  const [marketData, setMarketData] = useState();
+  const [galleryData,  setGalleryData]  = useState();
+  const [leagueData,   setLeagueData]   = useState();
+  const [articleData, setArticleData] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getallmarket');
+        const response = await fetch('http://localhost:3002/api/msi/getallarticle');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
-        setMarketData(result.total);
+        setArticleData(result.total);
       } catch (error) { console.error('Error fetching data:', error); }
     };
     fetchData();
@@ -66,10 +64,10 @@ function DisplayBoard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getallplayer');
+        const response = await fetch('http://localhost:3002/api/msi/getallprogram');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
-        setPlayerData(result.total);
+        setProgramData(result.total);
       } catch (error) { console.error('Error fetching data:', error); }
     };
     fetchData();
@@ -78,10 +76,10 @@ function DisplayBoard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getallteam');
+        const response = await fetch('http://localhost:3002/api/msi/getallgallery');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
-        setTeamData(result.total);
+        setGalleryData(result.total);
       } catch (error) { console.error('Error fetching data:', error); }
     };
     fetchData();
@@ -90,10 +88,10 @@ function DisplayBoard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getallblog');
+        const response = await fetch('http://localhost:3002/api/msi/getallleague');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
-        setData(result.total);
+        setLeagueData(result.total);
       } catch (error) { console.error('Error fetching data:', error); }
     };
     fetchData();
@@ -102,7 +100,7 @@ function DisplayBoard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://guinness-super-league-server.vercel.app/api/gsl/getallhighlight');
+        const response = await fetch('http://localhost:3002/api/msi/getallvideo');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const result = await response.json();
         setVideoData(result.total);
@@ -114,7 +112,7 @@ function DisplayBoard() {
   // ── card config ──────────────────────────────────────────────
   const cards = [
     {
-      label: 'Article',     count: data,       to: '/adminarticle',
+      label: 'Article',     count: articleData,       to: '/adminarticle',
       Icon: FaBloggerB,
       iconBg: 'bg-indigo-100 text-indigo-600',
       numColor: 'text-indigo-600',
@@ -132,7 +130,7 @@ function DisplayBoard() {
       delay: 1,
     },
     {
-      label: 'Championnat',    count: marketData, to: '/adminleague',
+      label: 'Championnat',    count: leagueData, to: '/adminleague',
       Icon: SiCardmarket,
       iconBg: 'bg-amber-100 text-amber-600',
       numColor: 'text-amber-600',
@@ -150,16 +148,16 @@ function DisplayBoard() {
       delay: 2,
     },
     {
-      label: 'Program',  count: null,       to: '/adminprogram',
+      label: 'Program',  count: programData,       to: '/adminprogram',
       Icon: MdPalette,
       iconBg: 'bg-orange-100 text-orange-600',
       numColor: 'text-orange-600',
       accent: 'bg-orange-500',
-      hover: 'hover:border-emerald-300 hover:shadow-[0_12px_32px_rgba(16,185,129,0.18)]',
+      hover: 'hover:border-orange-300 hover:shadow-[0_12px_32px_rgba(265,185,129,0.18)]',
       delay: 4,
     },
     {
-      label: 'Gallery',  count: null,       to: '/gslfixture?tab=fixmatchday',
+      label: 'Gallery',  count: galleryData,       to: '/admingallery',
       Icon: MdOutlineSettingsSystemDaydream,
       iconBg: 'bg-emerald-100 text-emerald-600',
       numColor: 'text-emerald-600',
@@ -168,12 +166,12 @@ function DisplayBoard() {
       delay: 4,
     },
     {
-      label: 'Live link',   count: null,       to: '/gslresult?tab=resultmatchday',
+      label: 'Live link',   count: null,       to: '/adminlive',
       Icon: GiBookCover,
       iconBg: 'bg-lime-100 text-lime-600',
       numColor: 'text-lime-600',
       accent: 'bg-lime-500',
-      hover: 'hover:border-lime-300 hover:shadow-[0_12px_32px_rgba(132,204,22,0.18)]',
+      hover: 'hover:border-lime-300 hover:shadow-[0_12px_32px_rgba(185,220,22,0.18)]',
       delay: 5,
     }
   ];
@@ -199,9 +197,9 @@ function DisplayBoard() {
             {/* Quick-stat pills */}
             <div className="flex items-center gap-3">
               {[
-                { label: 'Emission',  val: playerData, color: 'text-rose-500',   bg: 'bg-rose-50   border-rose-200'   },
-                { label: 'Championnat',    val: teamData,   color: 'text-blue-500',   bg: 'bg-blue-50   border-blue-200'   },
-                { label: 'Articles', val: data,       color: 'text-indigo-500', bg: 'bg-indigo-50 border-indigo-200' },
+                { label: 'Emission',  val: videoData, color: 'text-rose-500',   bg: 'bg-rose-50   border-rose-200'   },
+                { label: 'Championnat',    val: leagueData,   color: 'text-blue-500',   bg: 'bg-blue-50   border-blue-200'   },
+                { label: 'Articles', val: articleData,       color: 'text-indigo-500', bg: 'bg-indigo-50 border-indigo-200' },
               ].map((s) => (
                 <div key={s.label} className={`flex flex-col items-center border rounded-xl px-4 py-2.5 ${s.bg}`}>
                   <span className={`font-anton text-2xl ${s.color}`}>{s.val ?? '…'}</span>

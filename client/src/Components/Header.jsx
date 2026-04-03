@@ -75,6 +75,8 @@ const STYLES = `
 
   .ticker-marquee {
     animation: ticker 30s linear infinite;
+    display: flex;
+    width: max-content;
   }
 
   .nav-underline {
@@ -284,7 +286,7 @@ export default function Header() {
       <style>{STYLES}</style>
 
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full overflow-x-hidden ${
           scrolled
             ? 'bg-[#01175388] backdrop-blur-xl border-b border-white/5 shadow-lg'
             : 'bg-black backdrop-blur-sm'

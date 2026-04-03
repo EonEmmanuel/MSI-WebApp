@@ -11,6 +11,8 @@ import standingRoute from './Routes/Standing_route.js'
 import LeagueRoute from './Routes/League_route.js'
 import VideoRoute from './Routes/Video_route.js'
 import matchdayRoute from './Routes/Matchday_route.js'
+import GalleryRoute from './Routes/Gallery_route.js'
+import LiveRoute from './Routes/Live_route.js'
 
  dotenv.config()
 
@@ -28,4 +30,4 @@ app.listen(3002, () => {
     console.log("Server is on run......!!!")
 })
 
-app.use('/api/msi', teamRoute, userRoute, standingRoute, matchdayRoute, ProgramRoute, ArticleRoute, VideoRoute, ScheduleRoute, LeagueRoute)
+app.use('/api/msi', teamRoute, userRoute, standingRoute, GalleryRoute, LiveRoute, matchdayRoute, ProgramRoute, ArticleRoute, VideoRoute, ScheduleRoute, LeagueRoute)

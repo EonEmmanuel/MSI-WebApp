@@ -102,23 +102,44 @@ export default function ArticleDetails() {
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Find the current article
-    const currentArticle = ARTICLES.find(a => a.id === parseInt(id));
-    if (currentArticle) {
-      setArticle(currentArticle);
-      // Get some related articles (excluding the current one)
-      const related = ARTICLES.filter(a => a.id !== parseInt(id)).slice(0, 3);
-      setRelatedArticles(related);
-    } else {
-      // If article not found, go back to articles list
-      // In a real app, you might show a 404 page
-      navigate('/articles');
-    }
-    // Scroll to top when article changes
+    const fetchArticle = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`http://localhost:3002/api/msi/getarticleid/${id}`);
+        if (!response.ok) {
+            throw new Error('Article not found');
+        }
+        const data = await response.json();
+        setArticle(data);
+
+        // Fetch related articles
+        const relatedResponse = await fetch('http://localhost:3002/api/msi/getallarticle?limit=4');
+        if (relatedResponse.ok) {
+            const relatedData = await relatedResponse.json();
+            // Filter out current article and take top 3
+            const filtered = relatedData.data.filter(a => String(a.article_id) !== String(id)).slice(0, 3);
+            setRelatedArticles(filtered);
+        }
+      } catch (error) {
+        console.error('Error fetching article:', error);
+        navigate('/articles');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
     window.scrollTo(0, 0);
   }, [id, navigate]);
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="font-anton text-white text-2xl animate-pulse uppercase tracking-[0.2em]">Loading Article...</div>
+    </div>
+  );
 
   if (!article) return null;
 
@@ -138,7 +159,7 @@ export default function ArticleDetails() {
 
           <div className="fade-up mb-6 flex items-center gap-3">
              <span className="h-px w-12 bg-red-600" />
-             <span className="font-anton text-red-600 text-sm tracking-[0.4em] uppercase">{article.tag}</span>
+             <span className="font-anton text-red-600 text-sm tracking-[0.4em] uppercase">{article.category || article.tag}</span>
           </div>
 
           <h1 className="fade-up font-anton text-4xl md:text-6xl lg:text-7xl mb-8 leading-tight tracking-tight uppercase max-w-5xl">
@@ -148,11 +169,11 @@ export default function ArticleDetails() {
           <div className="fade-up flex flex-wrap items-center gap-6 text-white/60 mb-12" style={{ animationDelay: '100ms' }}>
             <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-sm font-anton border border-white/10">
-                    {article.author.charAt(0)}
+                    {article.editor?.charAt(0)}
                 </div>
                 <div>
                     <div className="text-xs text-white/40 font-anton tracking-widest uppercase">Written by</div>
-                    <div className="text-sm font-anton tracking-widest text-white uppercase">{article.author}</div>
+                    <div className="text-sm font-anton tracking-widest text-white uppercase">{article.editor}</div>
                 </div>
             </div>
             
@@ -162,7 +183,7 @@ export default function ArticleDetails() {
                 <Calendar size={18} className="text-red-600" />
                 <div>
                     <div className="text-xs text-white/40 font-anton tracking-widest uppercase">Published</div>
-                    <div className="text-sm font-anton tracking-widest text-white uppercase">{article.date}</div>
+                    <div className="text-sm font-anton tracking-widest text-white uppercase">{new Date(article.created_at).toLocaleDateString()}</div>
                 </div>
             </div>
 
@@ -172,7 +193,7 @@ export default function ArticleDetails() {
                 <Clock size={18} className="text-red-600" />
                 <div>
                     <div className="text-xs text-white/40 font-anton tracking-widest uppercase">Read Time</div>
-                    <div className="text-sm font-anton tracking-widest text-white uppercase">{article.readTime}</div>
+                    <div className="text-sm font-anton tracking-widest text-white uppercase">{article.read_time}</div>
                 </div>
             </div>
           </div>
@@ -201,7 +222,7 @@ export default function ArticleDetails() {
                 prose-p:mb-8
                 prose-blockquote:border-l-4 prose-blockquote:border-red-600 prose-blockquote:bg-white/5 prose-blockquote:p-8 prose-blockquote:rounded-r-2xl prose-blockquote:italic prose-blockquote:text-white prose-blockquote:text-xl"
                 style={{ animationDelay: '300ms' }}
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                dangerouslySetInnerHTML={{ __html: article.desc }}
               />
 
               {/* Tags & Interaction */}
@@ -231,11 +252,11 @@ export default function ArticleDetails() {
               {/* Author Profile */}
               <div className="fade-up mt-20 p-8 md:p-12 glass-card rounded-[3rem] flex flex-col md:flex-row items-center md:items-start gap-8" style={{ animationDelay: '500ms' }}>
                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-4xl font-anton border-4 border-white/5 shrink-0">
-                    {article.author.charAt(0)}
+                    {article.editor?.charAt(0)}
                 </div>
                 <div className="text-center md:text-left">
                     <div className="text-xs text-red-600 font-anton tracking-widest uppercase mb-1">About the Author</div>
-                    <h4 className="text-3xl font-anton uppercase text-white mb-4 tracking-wide">{article.author}</h4>
+                    <h4 className="text-3xl font-anton uppercase text-white mb-4 tracking-wide">{article.editor}</h4>
                     <p className="text-white/50 leading-relaxed mb-6 font-outfit">
                         Senior Sports Correspondent with over a decade of experience covering African and international football. Passionate about uncovering the human stories behind the statistics.
                     </p>
@@ -293,18 +314,18 @@ export default function ArticleDetails() {
 
                 {relatedArticles.map((rel) => (
                   <Link 
-                    key={rel.id} 
-                    to={`/articles/${rel.id}`}
+                    key={rel.article_id} 
+                    to={`/articles/${rel.article_id}`}
                     className="flex gap-4 group"
                   >
                     <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 border border-white/10">
                       <img src={rel.image} alt={rel.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
                     <div className="flex flex-col justify-center">
-                      <div className="text-[10px] font-anton text-red-500 tracking-widest uppercase mb-1">{rel.tag}</div>
+                      <div className="text-[10px] font-anton text-red-500 tracking-widest uppercase mb-1">{rel.category || rel.tag}</div>
                       <h4 className="font-anton text-base uppercase leading-tight group-hover:text-red-500 transition-colors line-clamp-2">{rel.title}</h4>
                       <div className="flex items-center gap-2 mt-2 text-[10px] text-white/40 font-anton uppercase tracking-widest">
-                        <Clock size={10} /> {rel.readTime}
+                        <Clock size={10} /> {rel.read_time}
                       </div>
                     </div>
                   </Link>

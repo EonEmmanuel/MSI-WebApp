@@ -3,11 +3,11 @@ import db from '../db.js'
  export const createVideo = async (req, res, next) => {
 
         try {
-            const { title, video_url, date, desc, tag } = req.body;
+            const { title, video_url, date, desc, tag, program } = req.body;
 
-          const blog = await db.query('SELECT * FROM "Emission" WHERE title = $1', [title]);
+          const programcheck = await db.query('SELECT * FROM "Emission" WHERE video_url = $1', [video_url]);
           
-          if (blog.rows.length > 0) {
+          if (programcheck.rows.length > 0) {
             return res.status(404).json({ message:'Video Already Exist'});
           }
 
@@ -16,8 +16,8 @@ import db from '../db.js'
         .replace(/\s+/g, "-");
             
             const result = await db.query(
-              'INSERT INTO "Emission" ( video_slug, title, video_url, date, "desc", tag ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-              [ video_slug, title, video_url, date, desc, tag ]
+              'INSERT INTO "Emission" ( video_slug, title, video_url, date, "desc", tag, program ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+              [ video_slug, title, video_url, date, desc, tag, program ]
             );
               res.status(201).json(result.rows);
           } catch (error) {
@@ -32,8 +32,9 @@ import db from '../db.js'
           try {
             // 1. Query the database to get the video
             const result = await db.query(`
-              SELECT video_slug, emission_id, title, video_url, date, "desc", tag
-              FROM "Emission"
+              SELECT e.video_slug, e.emission_id, e.title, e.video_url, e.date, e."desc", e.tag, e.program, p.name, p.image, p.duration, p.themecolor
+              FROM "Emission" e
+              JOIN "Program" p ON e.program = p.program_id
               WHERE video_slug = $1
             `, [video_slug]);
         
@@ -58,8 +59,9 @@ import db from '../db.js'
           try {
             // 1. Query the database to get the video
             const result = await db.query(`
-              SELECT emission_id,video_slug, title, video_url, date, "desc", tag
-              FROM "Emission"
+             SELECT e.video_slug, e.emission_id, e.title, e.video_url, e.date, e."desc", e.tag, e.program, p.name, p.image, p.duration, p.themecolor
+              FROM "Emission" e
+              JOIN "Program" p ON e.program = p.program_id
               WHERE emission_id = $1
             `, [emission_id]);
         
@@ -85,8 +87,10 @@ import db from '../db.js'
 
             // 1. Query the database to get all highlights
             const result = await db.query(`
-              SELECT emission_id, video_slug, emission_id, title, video_url, date, "desc", tag
-              FROM "Emission" ORDER BY emission_id DESC LIMIT $1
+              SELECT e.video_slug, e.emission_id, e.title, e.video_url, e.date, e."desc", e.tag, e.program, p.name, p.image, p.duration, p.themecolor
+              FROM "Emission" e
+              JOIN "Program" p ON e.program = p.program_id
+              ORDER BY emission_id DESC LIMIT $1
            `, [limit]);
 
            const sum = await db.query('SELECT COUNT(*) FROM "Emission"');
@@ -111,17 +115,17 @@ import db from '../db.js'
         export const updateVideo = async (req, res) => {
           try {
             const { emission_id } = req.params;
-            const { title, video_url, date, desc, tag } = req.body;
+            const { title, video_url, date, desc, tag, program } = req.body;
             
             // First check if highlight exists
-            const highlight = await db.query('SELECT * FROM "Emission" WHERE video_id = $1', [emission_id]);
+            const highlight = await db.query('SELECT * FROM "Emission" WHERE emission_id = $1', [emission_id]);
             if (highlight.rows.length === 0) {
               return res.status(404).json({ message: 'Emission not found' });
             }
         
             const result = await db.query(
-              'UPDATE "Emission" SET title = $2, video_url = $3, , date = $4, , "desc" = $5, tag = $6 WHERE emission_id = $1 RETURNING *',
-              [title, video_url, date, desc, tag]
+              'UPDATE "Emission" SET title = $2, video_url = $3, date = $4, "desc" = $5, tag = $6, program = $7 WHERE emission_id = $1 RETURNING *',
+              [emission_id, title, video_url, date, desc, tag, program]
             );
             
             res.json(result.rows);

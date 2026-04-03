@@ -322,7 +322,7 @@ export default function MatchFixturesSection() {
   };
 
   return (
-    <section className="relative bg-gradient-to-b from-black via-zinc-950 to-black py-16 md:py-20">
+    <section className="relative bg-gradient-to-b from-black via-zinc-950 to-black py-16 md:py-20 overflow-x-hidden">
       <FontImport />
 
       <div className="w-full p-2 overflow-hidden">

@@ -55,112 +55,6 @@ const FontImport = () => (
   `}</style>
 );
 
-const ARTICLES = [
-  {
-    id: 1,
-    category: "Sports",
-    subCategory: "Football",
-    tag: "Premier League",
-    title: "Haaland Breaks Another Record as City Cruise Past Arsenal",
-    excerpt: "Erling Haaland scored his 35th league goal of the season as Manchester City secured a crucial 2-1 win at the Etihad.",
-    author: "Chidi Okafor",
-    date: "March 25, 2026",
-    time: "2 hours ago",
-    readTime: "4 min read",
-    image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&q=80",
-  },
-  {
-    id: 2,
-    category: "Sports",
-    subCategory: "Basketball",
-    tag: "NBA Playoffs",
-    title: "LeBron James Leads Lakers to Overtime Victory Against Celtics",
-    excerpt: "In a gripping Game 5 thriller, LeBron posted 34 points and 12 assists to keep the Lakers' championship hopes alive.",
-    author: "Amara Diallo",
-    date: "March 24, 2026",
-    time: "4 hours ago",
-    readTime: "3 min read",
-    image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=80",
-  },
-  {
-    id: 3,
-    category: "International",
-    subCategory: "African Cup of Nations",
-    tag: "AFCON",
-    title: "Super Eagles Named in Preliminary AFCON 2027 Squad",
-    excerpt: "Coach Finidi George has announced a 35-man preliminary squad ahead of the highly anticipated continental tournament.",
-    author: "Ngozi Eze",
-    date: "March 24, 2026",
-    time: "6 hours ago",
-    readTime: "5 min read",
-    image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80",
-  },
-  {
-    id: 4,
-    category: "Sports",
-    subCategory: "Tennis",
-    tag: "Wimbledon",
-    title: "Djokovic Survives Five-Set Battle to Reach Wimbledon Quarters",
-    excerpt: "The 24-time Grand Slam champion showed trademark resilience to outlast his opponent in a record-breaking match.",
-    author: "Kwame Asante",
-    date: "March 23, 2026",
-    time: "8 hours ago",
-    readTime: "3 min read",
-    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=800&q=80",
-  },
-  {
-    id: 5,
-    category: "Sports",
-    subCategory: "Football",
-    tag: "CAF Champions League",
-    title: "Zamalek and Al Ahly Share Spoils in Cairo Derby Thriller",
-    excerpt: "The Egyptian giants played out a pulsating 1-1 draw in the first leg of the CAF Champions League semi-final.",
-    author: "Fatou Diop",
-    date: "March 23, 2026",
-    time: "10 hours ago",
-    readTime: "4 min read",
-    image: "https://images.unsplash.com/photo-1517747614396-d21a78b850e8?w=800&q=80",
-  },
-  {
-    id: 6,
-    category: "Sports",
-    subCategory: "Basketball",
-    tag: "College Basketball",
-    title: "Duke Dominates with Record-Breaking Performance",
-    excerpt: "The Blue Devils set a new school record with an impressive 89-72 victory over their long-standing rivals.",
-    author: "Michael Chen",
-    date: "March 22, 2026",
-    time: "12 hours ago",
-    readTime: "3 min read",
-    image: "https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=800&q=80",
-  },
-  {
-    id: 7,
-    category: "International",
-    subCategory: "UEFA Championship",
-    tag: "Euro 2024",
-    title: "Mbappé Shines as France Secure Spot in Semi-Finals",
-    excerpt: "A masterclass performance from the captain ensures Les Bleus continue their dominant run in the championship.",
-    author: "Julian Bernard",
-    date: "March 21, 2026",
-    time: "1 day ago",
-    readTime: "6 min read",
-    image: "https://images.unsplash.com/photo-1511406384665-27178ebec662?w=800&q=80",
-  },
-  {
-    id: 8,
-    category: "International",
-    subCategory: "FIFA World Cup",
-    tag: "World Cup Qualifiers",
-    title: "Argentina Face Tough Test Against Brazil in Qualifiers",
-    excerpt: "The world champions travel to Rio for a high-stakes clash that could define their qualifying campaign.",
-    author: "Ricardo G. ",
-    date: "March 20, 2026",
-    time: "2 days ago",
-    readTime: "5 min read",
-    image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&q=80",
-  }
-];
 
 const CATEGORIES = [
   { label: "All", value: "All" },
@@ -206,13 +100,26 @@ export default function Articles() {
     setCurrentPage(1);
   }, [activeCategory, activeSubCategory, searchQuery]);
 
-  const filteredArticles = ARTICLES.filter(article => {
-    const matchesCategory = activeCategory === "All" || article.category === activeCategory;
-    const matchesSubCategory = activeSubCategory === "All" || article.subCategory === activeSubCategory;
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          article.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          article.tag.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSubCategory && matchesSearch;
+  const filteredArticles = articleData.filter(article => {
+    const isInternational = article.international === true || String(article.international).toLowerCase() === 'true' || article.international === 1;
+    
+    let matchesCategory = true;
+    if (activeCategory === "Sports") {
+      matchesCategory = !isInternational;
+    } else if (activeCategory === "International") {
+      matchesCategory = isInternational;
+    }
+
+    const matchesSubCategory = activeSubCategory === "All" || 
+                               article.category === activeSubCategory || 
+                               article.tag === activeSubCategory;
+
+    const matchesSearch = (article.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          article.desc?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          article.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          article.category?.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return (activeCategory === "All" || matchesCategory) && matchesSubCategory && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
@@ -316,8 +223,8 @@ export default function Articles() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
                 {currentArticles.map((article, idx) => (
                   <Link 
-                    key={article.id} 
-                    to={`/articles/${article.id}`}
+                    key={article.article_id} 
+                    to={`/articles/${article.article_id}`}
                     className="fade-up group h-full"
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
@@ -349,11 +256,11 @@ export default function Articles() {
                       <div className="px-4 pb-6 flex-grow">
                         <div className="flex items-center gap-4 text-white/40 text-[10px] font-anton tracking-widest uppercase mb-4">
                             <span className="flex items-center gap-1.5">
-                                <Calendar size={12} className="text-red-500" /> {article.date}
+                                <Calendar size={12} className="text-red-500" /> {new Date(article.created_at).toLocaleDateString()}
                             </span>
                             <span className="w-1 h-1 bg-white/20 rounded-full" />
                             <span className="flex items-center gap-1.5">
-                                <Clock size={12} className="text-red-500" /> {article.readTime}
+                                <Clock size={12} className="text-red-500" /> {article.read_time}
                             </span>
                         </div>
 
@@ -362,15 +269,15 @@ export default function Articles() {
                         </h3>
                         
                         <p className="text-white/40 text-sm leading-relaxed mb-6 line-clamp-3 font-outfit">
-                          {article.excerpt}
+                          {article.desc}
                         </p>
 
                         <div className="flex items-center justify-between mt-auto">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center text-[10px] font-anton border border-white/10">
-                                    {article.author.charAt(0)}
+                                    {article.editor?.charAt(0)}
                                 </div>
-                                <span className="text-xs font-anton tracking-widest text-white/60 uppercase">{article.author}</span>
+                                <span className="text-xs font-anton tracking-widest text-white/60 uppercase">{article.editor}</span>
                             </div>
                             <button className="text-white/20 hover:text-red-500 transition-colors">
                                 <Share2 size={16} />
@@ -470,19 +377,19 @@ export default function Articles() {
                   <h3 className="font-anton text-xl tracking-widest uppercase">Featured Posts</h3>
                 </div>
                 <div className="space-y-6">
-                  {ARTICLES.slice(0, 3).map((article) => (
-                    <div key={article.id} className="flex gap-4 group cursor-pointer">
+                  {articleData.slice(0, 3).map((article) => (
+                    <Link key={article.article_id} to={`/articles/${article.article_id}`} className="flex gap-4 group cursor-pointer">
                       <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
                         <img src={article.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                       <div className="flex flex-col justify-center">
-                        <span className="text-[10px] font-anton text-red-500 uppercase tracking-widest mb-1">{article.tag}</span>
+                        <span className="text-[10px] font-anton text-red-500 uppercase tracking-widest mb-1">{article.category || article.tag}</span>
                         <h4 className="font-anton text-sm uppercase group-hover:text-red-500 transition-colors line-clamp-2 leading-snug">
                           {article.title}
                         </h4>
-                        <span className="text-[10px] text-white/30 uppercase mt-1">{article.date}</span>
+                        <span className="text-[10px] text-white/30 uppercase mt-1">{new Date(article.created_at).toLocaleDateString()}</span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -494,8 +401,25 @@ export default function Articles() {
                   <h3 className="font-anton text-xl tracking-widest uppercase">Quick Links</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {["Champions League", "NBA", "World Cup", "Transfer News", "Grand Slam", "Formula 1", "Olympic Games"].map(tag => (
-                    <span key={tag} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-anton tracking-widest uppercase text-white/50 hover:text-red-500 hover:border-red-500/50 cursor-pointer transition-all">
+                  {[
+                    { tag: "Football", category: "Sports", sub: "Football" },
+                    { tag: "Basketball", category: "Sports", sub: "Basketball" },
+                    { tag: "Tennis", category: "Sports", sub: "Tennis" },
+                    { tag: "World Cup", category: "International", sub: "FIFA World Cup" },
+                    { tag: "AFCON", category: "International", sub: "African Cup of Nations" },
+                    { tag: "NBA", category: "Sports", sub: "Basketball" },
+                    { tag: "Champions League", category: "International", sub: "UEFA Championship" }
+                  ].map(({ tag, category, sub }) => (
+                    <span 
+                      key={tag}
+                      onClick={() => {
+                        setActiveCategory(category);
+                        setActiveSubCategory(sub);
+                        setSearchQuery("");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-anton tracking-widest uppercase text-white/50 hover:text-red-500 hover:border-red-500/50 cursor-pointer transition-all"
+                    >
                       {tag}
                     </span>
                   ))}

@@ -3,12 +3,12 @@ import db from '../db.js';  // Assuming you are using a db module for your Postg
 export const createSchedule = async (req, res) => {
 
   try {
-    const { day, program, time, duration, tag, themecolor } = req.body;
+    const { day, program } = req.body;
 
     // Insert the new player into the Player table
     const result = await db.query(
-      'INSERT INTO "Schedule" (day, program, time, duration, tag, themecolor) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [day, program, time, duration, tag, themecolor]
+      'INSERT INTO "Schedule" (day, program) VALUES ($1, $2) RETURNING *',
+      [day, program]
     );
     
     const newSchedule = result.rows[0];  // Assuming `result.rows` contains the inserted player
@@ -26,8 +26,9 @@ export const getSchedule = async (req, res) => {
   try {
     // 1. Query the database to get the player with team details
     const result = await db.query(`
-      SELECT day, program, time, duration, tag, themecolor
-      FROM "Schedule" 
+     SELECT s.schedule_id, s.day, s.program, p.image, p.name, p.p_image, p."desc", p.time, p.occurence, p.duration, p.tag, p.live, p."unique", p.themecolor
+      FROM "Schedule" s
+      LEFT JOIN "Program" p ON s.program = p.program_id
       WHERE schedule_id = $1
     `, [schedule_id]);
 
@@ -50,8 +51,9 @@ export const getAllSchedule = async (req, res) => {
   try {
     // 1. Query the database to get all players along with their team details
     const result = await db.query(`
-     SELECT schedule_id, day, program, time, duration, tag, themecolor
-     FROM "Schedule"
+     SELECT s.schedule_id, s.day, s.program, p.image, p.name, p.p_image, p."desc", p.time, p.occurence, p.duration, p.tag, p.live, p."unique", p.themecolor
+      FROM "Schedule" s
+      LEFT JOIN "Program" p ON s.program = p.program_id
      ORDER BY schedule_id DESC
     `);
 
@@ -81,10 +83,11 @@ export const getScheduleByDay = async (req, res) => {
 
   try {
     const result = await db.query(`
-      SELECT schedule_id, day, program, time, duration, tag, themecolor
-      FROM "Schedule"
-      WHERE LOWER(day) = LOWER($1)
-      ORDER BY schedule_id DESC
+     SELECT s.schedule_id, s.day, s.program, p.image, p.name, p.p_image, p."desc", p.time, p.occurence, p.duration, p.tag, p.live, p."unique", p.themecolor
+      FROM "Schedule" s
+      LEFT JOIN "Program" p ON s.program = p.program_id
+      WHERE LOWER(s.day) = LOWER($1)
+      ORDER BY s.schedule_id DESC
     `, [day]);
 
     const total = result.rows.length;
@@ -105,7 +108,7 @@ export const updateSchedule = async (req, res) => {
 
   const { schedule_id } = req.params;
 
-  const { day, program, time, duration, tag, themecolor } = req.body;
+  const { day, program } = req.body;
 
   try {
 
@@ -118,18 +121,14 @@ export const updateSchedule = async (req, res) => {
     // 3. Update the player details
     const updateQuery = `
       UPDATE "Schedule"
-      SET day = $2, program = $3, time = $4, duration = $5, tag = $6, themecolor = $7
-      WHERE schedule_id = $1
+        SET day = $2, program = $3
+        WHERE schedule_id = $1
       RETURNING *;
     `;
     const updatedSchedule = await db.query(updateQuery, [
       schedule_id,
       day, 
-      program,
-      time, 
-      duration,
-      tag,
-      themecolor
+      program
     ]);
 
     // 4. Respond with the updated player data
@@ -142,6 +141,7 @@ export const updateSchedule = async (req, res) => {
 }
 
 export const deleteSchedule = async (req, res) => {
+
   const { schedule_id } = req.params;
 
   try {

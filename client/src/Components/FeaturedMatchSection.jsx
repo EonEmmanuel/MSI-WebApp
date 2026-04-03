@@ -231,7 +231,7 @@ function MatchCard({ match, delayClass }) {
 /* ── SECTION ── */
 export default function FeaturedMatchSection() {
   return (
-    <section className="bg-zinc-950 min-h-screen">
+    <section className="bg-zinc-950 min-h-screen overflow-x-hidden">
       <FontImport />
       <AnimStyles />
 

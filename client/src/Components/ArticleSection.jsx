@@ -148,8 +148,9 @@ function StoryCard({ article, index }) {
   const tagStyle = tagStyles[article.category] || "bg-white/10 text-white/50 border-white/10";
 
   return (
-    <div
-      className="fade-up story-card group relative w-40 sm:w-44 md:w-56 h-80 sm:h-96 rounded-3xl overflow-hidden bg-black border border-white/10 flex-shrink-0 cursor-pointer shadow-xl"
+    <Link 
+      to={`/articles/${article.article_id}`}
+      className="fade-up story-card group relative w-40 sm:w-44 md:w-56 h-80 sm:h-96 rounded-3xl overflow-hidden bg-black border border-white/10 flex-shrink-0 cursor-pointer shadow-xl max-w-[calc(100vw-48px)]"
       style={{ animationDelay: `${index * 80}ms` }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -171,7 +172,7 @@ function StoryCard({ article, index }) {
           <span
             className={`font-outfit text-[9px] font-600 px-2.5 py-1 rounded-full border inline-block tracking-wide ${tagStyle}`}
           >
-            {article.tag}
+            {article.category || article.tag}
           </span>
           <div className={`w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-all ${isHovered ? 'bg-white/30' : ''}`}>
             <Play size={14} className="text-white fill-white" />
@@ -214,7 +215,7 @@ function StoryCard({ article, index }) {
           <p className="font-outfit font-600 text-white text-sm">Read Full Story</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -291,7 +292,7 @@ export default function ArticlesSection() {
             className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-4 md:px-6 lg:px-8"
           >
             {articleData.map((article, index) => (
-              <StoryCard key={article.id} article={article} index={index} />
+              <StoryCard key={article.article_id} article={article} index={index} />
             ))}
           </div>
 
@@ -328,8 +329,8 @@ export default function ArticlesSection() {
       </div>
 
       {/* Decorative elements */}
-      <div className="absolute top-20 right-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl pointer-events-none opacity-50" />
-      <div className="absolute bottom-20 left-10 w-72 h-72 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 right-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl pointer-events-none opacity-50 overflow-hidden" />
+      <div className="absolute bottom-20 left-10 w-72 h-72 bg-red-500/5 rounded-full blur-3xl pointer-events-none overflow-hidden" />
     </section>
   );
 }

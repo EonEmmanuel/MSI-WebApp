@@ -61,7 +61,7 @@ function ProgramRow({ prog }) {
       {/* Title + meta */}
       <div className="flex-1 min-w-0">
         <h4 className={`font-outfit text-sm uppercase font-600 truncate mb-1.5 ${prog.live ? "text-white" : "text-white/80"}`}>
-          {prog.program}
+          {prog.name}
         </h4>
         <div className="flex items-center gap-2">
           <span
@@ -118,7 +118,7 @@ export default function TodaysProgramsSection() {
   }, [])
 
   return (
-    <section className="bg-zinc-950 min-h-screen">
+    <section className="bg-zinc-950 min-h-screen overflow-x-hidden">
       <FontImport />
 
       <div className="max-w-screen-xl mx-auto px-6 md:px-10 py-16">

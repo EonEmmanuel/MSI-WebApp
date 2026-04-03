@@ -260,6 +260,23 @@ const TEAM = [
 ];
 
 export default function Gallery() {
+
+  const [galleryData, setGalleryData] = useState([]);
+    
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await fetch('http://localhost:3002/api/msi/getallgallery?limit=8');
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const result = await response.json();
+            setGalleryData(result.data);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+        fetchData();
+      }, []);
+
   return (
     <div className="relative min-h-screen w-full bg-[#050505] overflow-x-hidden selection:bg-red-600/30 font-outfit">
       <FontImport />
@@ -282,15 +299,15 @@ export default function Gallery() {
         <div className="circle-container w-full fade-up" style={{ animationDelay: '200ms' }}>
           <div className="hero-glow" />
           <div className="circle-ring">
-            {TEAM.map((member, i) => (
+            {galleryData.map((member, i) => (
               <div 
-                key={`circle-${member.id}`} 
+                key={`circle-${member.gallery_id}`} 
                 className="circle-card" 
                 style={{ '--item-rot': `${i * 45}deg` }}
               >
                 <div className="circle-card-animation-wrapper">
                   <div className="circle-card-content">
-                    <img src={member.image} alt={member.name} />
+                    <img src={member.photo} alt={member.name} />
                   </div>
                 </div>
               </div>
@@ -310,15 +327,15 @@ export default function Gallery() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {TEAM.map((member, idx) => (
+            {galleryData.map((member, idx) => (
               <div 
-                key={member.id} 
+                key={member.gallery_id} 
                 className="fade-up group"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
                 <div className="aspect-[4/5] rounded-[2rem] overflow-hidden mb-6 border border-white/5 bg-white/5 relative">
                   <img 
-                    src={member.image} 
+                    src={member.photo} 
                     alt={member.name} 
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
@@ -333,7 +350,7 @@ export default function Gallery() {
                     {member.role}
                   </p>
                   <p className="text-white/40 text-sm leading-relaxed line-clamp-3 pt-2">
-                    {member.bio}
+                    {member.desc}
                   </p>
                   
                   <div className="flex gap-4 pt-4 text-white/30 group-hover:text-white/60 transition-colors">
